@@ -165,6 +165,30 @@
       color: #B35B3E;
       margin-bottom: 8px;
     }
+
+    /* ★ 新增：提示訊息 Toast */
+    .toast {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 12px;
+  font-size: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 9999;
+}
+
+    .toast.show {
+      opacity: 1;
+    }
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -173,23 +197,27 @@
 
 <!-- 導覽列：這一頁是「任務設定」 -->
 <div class="navbar">
-  <a href="dashboard.html" class="nav-btn">今日任務</a>
-  <a href="rewards.html" class="nav-btn">獎勵小屋</a>
-  <a href="settings.html" class="nav-btn active">任務設定</a>
+  <a href="index.html" class="nav-btn">首頁</a>
+  <a href="dashboard.html" class="nav-btn ">今日任務</a>
+  <a href="setting.html" class="nav-btn active">任務設定</a>
+  <a href="rewards.html" class="nav-btn">獎勵商城</a>
+  <a href="monsters.html" class="nav-btn">小怪獸森林</a>
+  <a href="story.html" class="nav-btn">挑戰王故事</a>    
 </div>
 
 <div class="layout">
   <!-- 左邊：目前任務列表 -->
   <div class="col">
-    <div class="panel">
+    <div class="panel" id="task-list-section"><!-- ★ 加上 id 供捲動 -->
       <h2>目前任務列表</h2>
       <p>這裡會顯示現在所有任務。之後 dashboard 可以改成讀取這份設定。</p>
       <div id="task-list"></div>
     </div>
+  </div>
 
   <!-- 右邊：新增 / 編輯任務表單 -->
   <div class="col">
-    <div class="panel">
+    <div class="panel" id="edit-section"><!-- ★ 加上 id 供捲動 -->
       <h2>新增 / 編輯任務</h2>
       <p>新增任務後會儲存在這台裝置的瀏覽器（localStorage）。之後可以再串接到後端。</p>
 
@@ -237,6 +265,9 @@
     </div>
   </div>
 </div>
+
+<!-- ★ 新增：提示訊息容器 -->
+<div id="toast" class="toast hidden">任務設定完成</div>
 
 <script>
   // 儲存在 localStorage 的 key
@@ -356,8 +387,10 @@
     });
   }
 
+  // ★ 修正：若沒有 json-view 元素就直接略過，避免報錯
   function renderJsonView() {
     const jsonBox = document.getElementById("json-view");
+    if (!jsonBox) return;
     jsonBox.value = JSON.stringify(tasks, null, 2);
   }
 
@@ -374,6 +407,7 @@
     document.getElementById("cancel-edit-btn").style.display = "none";
   }
 
+  // ★ 修改：按下編輯會自動捲到編輯區
   function startEditTask(id) {
     const t = tasks.find(task => task.id === id);
     if (!t) return;
@@ -397,8 +431,32 @@
 
     const cancelBtn = document.getElementById("cancel-edit-btn");
     cancelBtn.style.display = "inline-block";
+
+    // ★ 新增：捲動到編輯區
+    document
+      .getElementById("edit-section")
+      .scrollIntoView({ behavior: "smooth" });
   }
 
+  // ★ 新增：2 秒自動消失的提示訊息
+  function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+
+    toast.classList.remove("hidden");
+    // 強制 reflow 讓 transition 生效
+    void toast.offsetWidth;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+      toast.classList.remove("show");
+      setTimeout(() => {
+        toast.classList.add("hidden");
+      }, 300);
+    }, 2000); // 2 秒後開始淡出
+  }
+
+  // ★ 修改：改成儲存後回到列表 + 顯示提示訊息
   function handleFormSubmit() {
     const nameInput = document.getElementById("task-name");
     const pointsInput = document.getElementById("task-points");
@@ -438,7 +496,12 @@
       tasks.push(newTask);
       saveTasks();
       resetFormToCreateMode();
-      alert("已新增任務：「" + name + "」");
+
+      // ★ 新增成功後回到列表 + 提示
+      document
+        .getElementById("task-list-section")
+        .scrollIntoView({ behavior: "smooth" });
+      showToast(`已新增任務：「${name}」`);
     } else {
       // 👉 編輯模式
       const t = tasks.find(task => task.id === editingTaskId);
@@ -455,7 +518,12 @@
 
       saveTasks();
       resetFormToCreateMode();
-      alert("已更新任務：「" + name + "」");
+
+      // ★ 編輯完成後回到列表 + 提示
+      document
+        .getElementById("task-list-section")
+        .scrollIntoView({ behavior: "smooth" });
+      showToast("任務設定完成");
     }
   }
 
@@ -488,6 +556,30 @@
       .getElementById("cancel-edit-btn")
       .addEventListener("click", resetFormToCreateMode);
   });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const supabaseUrl = "https://YOUR-PROJECT.supabase.co";
+  const supabaseAnonKey = "YOUR_PUBLIC_ANON_KEY";
+  const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+  async function requireAuth() {
+    const { data } = await supabaseClient.auth.getSession();
+    if (!data.session || !data.session.user) {
+      // 沒登入 → 回登入頁
+      window.location.href = "login.html";
+      return null;
+    }
+    return data.session.user;
+  }
+
+  // 頁面初始化時先檢查
+  (async () => {
+    const user = await requireAuth();
+    if (!user) return;
+    // 在這裡可以拿 user.id 當成 parent_id 去撈資料
+    console.log("登入中的爸媽：", user.id, user.email);
+  })();
 </script>
 
 </body>

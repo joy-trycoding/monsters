@@ -4,48 +4,347 @@
   <meta charset="UTF-8" />
   <title>小怪獸挑戰王的故事</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Story 專用樣式 -->
+  <style>
+    .page-story {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .story-header h1 {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .story-header p {
+      text-align: center;
+      color: #666;
+      margin-bottom: 24px;
+    }
+
+    .story-animation {
+      margin: 16px 0 24px;
+      text-align: center;
+    }
+
+    .story-content {
+      line-height: 1.7;
+      font-size: 15px;
+      color: #433232;
+      margin-bottom: 32px;
+    }
+
+    /* 🟡 小果吉說故事區塊 */
+    .story-audio {
+      text-align: center;
+      margin: 24px auto 40px;
+    }
+
+    .story-audio h2 {
+      margin-bottom: 8px;
+    }
+
+    .story-audio p {
+      font-size: 13px;
+      color: #777;
+      margin-bottom: 12px;
+    }
+
+    .story-audio-trigger {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border-radius: 18px;
+      background: #fff7da;
+      border: 2px solid #ffc96a;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #e0a84f;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s ease;
+      user-select: none;
+    }
+
+    .story-audio-trigger:hover {
+      background: #ffefc0;
+    }
+
+    .story-audio-trigger:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #e0a84f;
+    }
+
+    .story-audio-trigger.playing {
+      background: #ffe8b2;
+      box-shadow: 0 2px 0 #d09240;
+    }
+
+    .story-voice-avatar {
+      width: 96px;
+      height: 96px;
+      object-fit: contain;
+    }
+
+    .story-voice-text {
+      font-size: 16px;
+      font-weight: bold;
+      color: #c0683c;
+    }
+
+    .story-audio-hint {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #999;
+    }
+  </style>
 </head>
 <body>
   <!-- 共用 header -->
+  <div class="navbar">
+    <a href="index.html" class="nav-btn">首頁</a>
+    <a href="dashboard.html" class="nav-btn">今日任務</a>
+    <a href="setting.html" class="nav-btn">任務設定</a>
+    <a href="rewards.html" class="nav-btn">獎勵商城</a>
+    <a href="monsters.html" class="nav-btn">小怪獸森林</a>
+    <a href="story.html" class="nav-btn active">挑戰王故事</a>    
+  </div>
 
   <main class="page page-story">
     <section class="story-header">
       <h1>小怪獸挑戰王的故事</h1>
-      <p>在一座被大樹包圍的森林裡，住著一群愛睡覺的小怪獸……</p>
+      <p>在一座被大樹包圍的森林裡，住著一群被施魔法的小怪獸……</p>
     </section>
 
     <!-- 動畫展示區（之後可掛 CSS / Lottie） -->
     <section class="story-animation">
       <div id="storyAnimationPlaceholder">
-        <!-- 可以先放一張主視覺，小果吉探頭 / 眨眼 -->
-        <p>（這裡是小怪獸故事的小動畫區）</p>
       </div>
     </section>
 
-    <!-- 故事正文 -->
-    <section class="story-content">
-      <h2>第一章：沉睡的小怪獸森林</h2>
+    <!-- 故事正文（會被抓來唸出來） -->
+    <section class="story-content" id="storyContent">
+      <h2>沉睡的小怪獸森林</h2>
       <p>
-        很久很久以前，在一座安靜的森林裡，所有的小怪獸都睡著了。
-        它們不是懶惰，而是在等待一種叫做「自主力」的魔法被喚醒。
+        我是小果吉，我是動力森林的守護者，有一天，不知名的魔法降臨了，讓所有的小怪獸都睡著了。  </p>
+        <p> 
+            神秘聲音告訴我，小怪獸們在等待一種叫做「自主力」的魔法來喚醒他們。
       </p>
       <p>
-        有一天，小果吉聽到遠方傳來孩子們的笑聲，
-        它決定邀請世界上的小朋友，一起透過每天的小任務，
-        把森林點亮、把怪獸一隻一隻喚醒……
+        於是，我想邀請世界上的小朋友，一起透過每天的小任務，
+        把森林點亮、把小怪獸一隻一隻喚醒，拜託大家了!
       </p>
       <!-- 之後可以繼續補章節 -->
     </section>
 
-    <!-- 語音播放區 -->
+    <!-- 🟡 語音播放區：改成小果吉圖示＋點我說故事 -->
     <section class="story-audio">
       <h2>用聽的故事時間</h2>
-      <p>點下播放鍵，讓小朋友一邊聽故事，一邊看著畫面。</p>
-      <audio id="storyAudio" controls>
-        <!-- 之後在這裡加上 src，例如：src="assets/audio/story_ch1.mp3" -->
-        您的瀏覽器不支援音訊播放。
-      </audio>
+      <p>點一下小果吉，讓他把這個故事說給孩子聽。</p>
+
+      <!-- 這個區塊當成按鈕 -->
+      <div class="story-audio-trigger" id="storyPlayBtn">
+        <!-- 這裡換成你的小果吉圖片路徑 -->
+        <img
+          src="assets/xiaoguoji_story.png"
+          alt="小果吉說故事"
+          class="story-voice-avatar"
+        />
+        <div class="story-voice-text">點我說故事</div>
+      </div>
+
+      <!-- 背景音樂（隱藏控制，靠 JS 控制播放） -->
+      <audio id="bgmAudio" src="assets/audio/story_bgm.mp3" loop></audio>
+
+      <p class="story-audio-hint">
+        小提醒：第一次播放時，瀏覽器可能會請你允許聲音，建議把音量調到孩子聽起來舒服的大小。
+      </p>
     </section>
   </main>
+
+  <!-- 🧠 語音朗讀 + 背景音樂 JS -->
+  <script>
+    const playBtn = document.getElementById("storyPlayBtn");
+    const bgmAudio = document.getElementById("bgmAudio");
+    const storyContentEl = document.getElementById("storyContent");
+  
+    let isPlayingStory = false;
+    let currentUtterance = null;
+    let storyStartTimer = null;     // ⬅️ 記錄「3 秒後開始說故事」的計時器
+    let bgmFadeInterval = null;     // ⬅️ 記錄 BGM 淡出用的 interval
+  
+    // 取得故事文字（只取文字，不要 HTML 標籤）
+    function getStoryText() {
+      return storyContentEl.innerText.trim();
+    }
+  
+    // 更新按鈕文字 / 樣式
+    function updatePlayButton() {
+      const textEl = playBtn.querySelector(".story-voice-text");
+      if (isPlayingStory) {
+        playBtn.classList.add("playing");
+        textEl.textContent = "正在說故事中（再點一下就會停止）";
+      } else {
+        playBtn.classList.remove("playing");
+        textEl.textContent = "點我說故事";
+      }
+    }
+  
+    // 🔊 開始說故事（含：先播 3 秒 BGM，再進入語音 + 降 BGM 音量）
+    function startStory() {
+      if (!("speechSynthesis" in window)) {
+        alert("此瀏覽器暫不支援語音朗讀功能，可以改用錄製好的 MP3 聲音檔喔！");
+        return;
+      }
+  
+      const text = getStoryText();
+      if (!text) return;
+  
+      // 保險起見，先清掉任何舊的語音 / 計時器 / 淡出
+      window.speechSynthesis.cancel();
+      clearTimersAndFade();
+  
+      isPlayingStory = true;
+      updatePlayButton();
+  
+      // 1️⃣ 先播 BGM，音量 100%
+      if (bgmAudio) {
+        try {
+          bgmAudio.currentTime = 0;
+          bgmAudio.volume = 1.0; // 全音量
+          bgmAudio.play().catch(() => {});
+        } catch (e) {
+          console.warn("BGM 播放失敗：", e);
+        }
+      }
+  
+      // 2️⃣ 等 3 秒後，開始唸故事 ＋ 把 BGM 降到 30%
+      storyStartTimer = setTimeout(() => {
+        startSpeechWithFade(text);
+      }, 3000);
+    }
+  
+    // 🧠 真正開始 TTS 語音 + BGM 從 1.0 淡到 0.2
+    function startSpeechWithFade(text) {
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "zh-TW";
+      utter.rate = 1.0;
+      utter.pitch = 1.0;
+  
+      utter.onend = () => {
+  // 故事講完後：進入「尾奏模式」
+  console.log("故事朗讀完畢，進入 5 秒尾奏音樂");
+
+  // 先確保 BGM 繼續用 30% 音量播放（如果被暫停也重新播放）
+  if (bgmAudio) {
+    try {
+      bgmAudio.volume = 0.3;
+      bgmAudio.play().catch(() => {});
+    } catch (e) {}
+  }
+
+  // ▶ 開始 5 秒尾奏
+  const endDelay = 5000; // 5 秒
+  const endTimer = setTimeout(() => {
+    console.log("尾奏結束，停止背景音樂");
+
+    // 停止 BGM，回復初始狀態
+    if (bgmAudio) {
+      try {
+        bgmAudio.pause();
+        bgmAudio.currentTime = 0;
+        bgmAudio.volume = 1.0; // 下一次從 100% 開始
+      } catch (e) {}
+    }
+
+    isPlayingStory = false;
+    updatePlayButton();
+  }, endDelay);
+};
+
+  
+      currentUtterance = utter;
+      window.speechSynthesis.speak(utter);
+  
+      // 🎚 把 BGM 音量從 1.0 淡到 0.3，大約 1 秒內完成
+      if (bgmAudio) {
+        const targetVolume = 0.2;
+        const duration = 1000; // 1 秒
+        const steps = 10;
+        const stepTime = duration / steps;
+        const startVolume = bgmAudio.volume || 1.0;
+        const volumeDiff = startVolume - targetVolume;
+        let currentStep = 0;
+  
+        clearInterval(bgmFadeInterval);
+        bgmFadeInterval = setInterval(() => {
+          currentStep++;
+          const progress = currentStep / steps;
+          const newVolume = startVolume - volumeDiff * progress;
+          bgmAudio.volume = Math.max(targetVolume, Math.min(1.0, newVolume));
+  
+          if (currentStep >= steps) {
+            bgmAudio.volume = targetVolume;
+            clearInterval(bgmFadeInterval);
+            bgmFadeInterval = null;
+          }
+        }, stepTime);
+      }
+    }
+  
+    // 🛑 停止故事 + BGM（使用者按第二次時）
+    function stopStory() {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+      if (bgmAudio) {
+        try {
+          bgmAudio.pause();
+          bgmAudio.currentTime = 0;
+          bgmAudio.volume = 1.0; // 回復原本音量
+        } catch (e) {}
+      }
+      clearTimersAndFade();
+      isPlayingStory = false;
+      updatePlayButton();
+    }
+  
+    // 清掉計時器與淡出 interval
+    function clearTimersAndFade() {
+      if (storyStartTimer) {
+        clearTimeout(storyStartTimer);
+        storyStartTimer = null;
+      }
+      if (bgmFadeInterval) {
+        clearInterval(bgmFadeInterval);
+        bgmFadeInterval = null;
+      }
+    }
+  
+    // 點擊小果吉：播放 / 停止 切換
+    playBtn.addEventListener("click", () => {
+      if (isPlayingStory) {
+        stopStory();
+      } else {
+        startStory();
+      }
+    });
+  
+    // 若使用者離開頁面，幫忙把語音與 BGM 關掉
+    window.addEventListener("beforeunload", () => {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+      if (bgmAudio) {
+        try {
+          bgmAudio.pause();
+        } catch (e) {}
+      }
+      clearTimersAndFade();
+    });
+  </script>  
 </body>
 </html>
