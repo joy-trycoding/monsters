@@ -6,20 +6,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
-  <!-- 共用 header 放這裡 -->
-  <!-- ...header code... -->
 
   <main>
     <section class="hero">
-      <h1>歡迎來到小怪獸森林</h1>
-      <p>透過每天的小任務，幫孩子練習「自主力」，一起喚醒沉睡的小怪獸。</p>
-      <div class="hero-actions">
-        <a href="setting.html" class="btn-primary">1. 設定孩子任務</a>
-        <a href="rewards.html" class="btn-secondary">2. 設定獎勵商城</a>
-        <a href="dashboard.html" class="btn-outline">3. 查看每日任務</a>
+      <div class="hero-inner">
+        <!-- 左側：文字區 -->
+        <div class="hero-text">
+          <p class="hero-tag">孩子的自主力練功場</p>
+          <h1>歡迎來到<br>小怪獸森林</h1>
+          <p class="hero-desc">
+            每天完成一點小任務，就能幫小果吉加溫孵化，
+            也讓孩子練習為自己負責、為家人一起努力。
+          </p>
+
+          <div class="hero-actions">
+            <a href="setting.html" class="btn-primary">開始設定任務</a>
+            <a href="rewards.html" class="btn-secondary">設定獎勵商城</a>
+            <a href="dashboard.html" class="btn-outline">查看今日任務</a>
+          </div>
+        </div>
+
+        <!-- 右側：小果吉主視覺 -->
+        <div class="hero-visual">
+          <div class="hero-monster">
+            <!-- TODO：這裡換成你的小果吉主視覺圖片路徑 -->
+            <!-- 例如：assets/img/xiaoguoji-hero.png -->
+            <img
+              src="assets/img/xiaoguoji-hero.png"
+              alt="小果吉 - 小怪獸挑戰王吉祥物"
+              class="hero-monster-img"
+            >
+          </div>
+
+          <div class="hero-speech">
+            <p>嗨！我是小果吉～<br>準備好一起挑戰今天的任務了嗎？</p>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 </body>
 </html>
+
