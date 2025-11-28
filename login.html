@@ -95,116 +95,188 @@
 
   <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // TODO: 換成你自己的 Supabase 專案 URL & anon key
-    const supabaseUrl = "https://reunrobejvodzkhbtspp.supabase.co";
-    const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJldW5yb2JlanZvZHpraGJ0c3BwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzc1MDEsImV4cCI6MjA3OTgxMzUwMX0.4Tfa94upcxp2wfnBUwBtFJl7H1NdnY3uQxLRxnjBrRE";
-    const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
-
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
-    const errorEl = document.getElementById("error");
-
-    function showError(msg) {
-      errorEl.textContent = msg || "";
-    }
-
-    // 登入
-    async function handleLogin() {
-      showError("");
-      const email = emailInput.value.trim();
-      const password = passwordInput.value.trim();
-      if (!email || !password) {
-        showError("請輸入 email 和密碼");
-        return;
+    <!-- Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      const supabaseUrl = "https://reunrobejvodzkhbtspp.supabase.co";
+      const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJldW5yb2JlanZvZHpraGJ0c3BwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzc1MDEsImV4cCI6MjA3OTgxMzUwMX0.4Tfa94upcxp2wfnBUwBtFJl7H1NdnY3uQxLRxnjBrRE";
+      const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
+  
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
+      const errorEl = document.getElementById("error");
+  
+      // 解析 URL 上的 redirect 參數，例如 login.html?redirect=dashboard.html
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectParam = urlParams.get("redirect");
+  
+      // 只允許跳轉到這幾個頁面，避免亂跳
+      const ALLOWED_REDIRECTS = [
+        "index.html",
+        "dashboard.html",
+        "setting.html",
+        "rewards.html",
+        "monsters.html",
+        "story.html",
+        "children.html"
+      ];
+  
+      function showError(msg) {
+        errorEl.textContent = msg || "";
       }
-
-      const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        showError(error.message || "登入失敗，請再試一次");
-        return;
+  
+      function getSafeRedirectTarget() {
+        if (!redirectParam) return null;
+        if (ALLOWED_REDIRECTS.includes(redirectParam)) {
+          return redirectParam;
+        }
+        return null;
       }
-
-      // 確保 profiles 有資料
-      await ensureProfile(data.user);
-
-      // 登入成功，導向今日任務
-      window.location.href = "dashboard.html";
-    }
-
-    // 註冊
-    async function handleSignUp() {
-      showError("");
-      const email = emailInput.value.trim();
-      const password = passwordInput.value.trim();
-      if (!email || !password) {
-        showError("請輸入 email 和密碼");
-        return;
-      }
-
-      const { data, error } = await supabaseClient.auth.signUp({
-        email,
-        password,
-      });
-
-      if (error) {
-        showError(error.message || "註冊失敗，請再試一次");
-        return;
-      }
-
-      // 新註冊用戶同樣建立 profile
-      if (data.user) {
-        await ensureProfile(data.user);
-      }
-
-      alert("註冊成功，已自動幫你登入！");
-      window.location.href = "dashboard.html";
-    }
-
-    // 確保 profiles 有一筆對應資料（若沒有就建立）
-    async function ensureProfile(user) {
-      if (!user) return;
-      const userId = user.id;
-      const email = user.email;
-
-      const { data, error } = await supabaseClient
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .maybeSingle();
-
-      if (error) {
-        console.error("讀取 profile 失敗：", error);
-        return;
-      }
-
-      if (!data) {
-        // 不存在就插入
-        const { error: insertErr } = await supabaseClient.from("profiles").insert({
-          id: userId,
-          email,
-          name: email, // 先用 email 當暫時名字，之後可以在設定頁更改
-        });
-        if (insertErr) {
-          console.error("建立 profile 失敗：", insertErr);
+  
+      // 確保 profiles 有一筆對應資料（若沒有就建立）
+      async function ensureProfile(user) {
+        if (!user) return;
+        const userId = user.id;
+        const email = user.email;
+  
+        const { data, error } = await supabaseClient
+          .from("profiles")
+          .select("*")
+          .eq("id", userId)
+          .maybeSingle();
+  
+        if (error) {
+          console.error("讀取 profile 失敗：", error);
+          return;
+        }
+  
+        if (!data) {
+          const { error: insertErr } = await supabaseClient.from("profiles").insert({
+            id: userId,
+            email,
+            name: email, // 先用 email 當暫時名稱
+          });
+          if (insertErr) {
+            console.error("建立 profile 失敗：", insertErr);
+          }
         }
       }
-    }
-
-    document.getElementById("btn-login").addEventListener("click", handleLogin);
-    document.getElementById("btn-signup").addEventListener("click", handleSignUp);
-
-    // 若已經有登入 session，直接導到 dashboard
-    (async () => {
-      const { data } = await supabaseClient.auth.getSession();
-      if (data.session && data.session.user) {
-        window.location.href = "dashboard.html";
+  
+      // ✅ 登入後的共同流程：
+      // 1) 確保 profile 存在
+      // 2) 看這個爸媽底下有沒有孩子
+      // 3) 沒有孩子 → 先去 children.html 建孩子（帶著 redirect 回原頁的資訊）
+      // 4) 有孩子 → 回原本想去的頁面，或預設 dashboard
+      async function handlePostLoginRedirect(user) {
+        if (!user) return;
+  
+        await ensureProfile(user);
+  
+        // 檢查是否已經有孩子
+        let hasChild = false;
+        let firstChild = null;
+  
+        const { data: childrenRows, error: childrenError } = await supabaseClient
+          .from("children")
+          .select("id")
+          .eq("parent_id", user.id)
+          .limit(1);
+  
+        if (!childrenError && childrenRows && childrenRows.length > 0) {
+          hasChild = true;
+          firstChild = childrenRows[0];
+        }
+  
+        // ✅ 若還沒有任何孩子 → 先去 children.html 做設定
+        if (!hasChild) {
+          const safeRedirect = getSafeRedirectTarget() || "dashboard.html";
+          // 帶上 redirect，等設定好孩子後可以回來
+          window.location.href = `children.html?redirect=${encodeURIComponent(safeRedirect)}`;
+          return;
+        }
+  
+        // ✅ 若已經有孩子 → 回原本想去的頁面，或預設 dashboard
+        const safeRedirect = getSafeRedirectTarget();
+        if (safeRedirect) {
+          window.location.href = safeRedirect;
+        } else {
+          window.location.href = "dashboard.html";
+        }
       }
-    })();
-  </script>
+  
+      // 登入
+      async function handleLogin() {
+        showError("");
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+        if (!email || !password) {
+          showError("請輸入 email 和密碼");
+          return;
+        }
+  
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email,
+          password,
+        });
+  
+        if (error) {
+          showError(error.message || "登入失敗，請再試一次");
+          return;
+        }
+  
+        if (!data.user) {
+          showError("登入失敗：沒有取得 user 資訊");
+          return;
+        }
+  
+        // ✅ 使用共同流程處理後續導向
+        await handlePostLoginRedirect(data.user);
+      }
+  
+      // 註冊
+      async function handleSignUp() {
+        showError("");
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+        if (!email || !password) {
+          showError("請輸入 email 和密碼");
+          return;
+        }
+  
+        const { data, error } = await supabaseClient.auth.signUp({
+          email,
+          password,
+        });
+  
+        if (error) {
+          showError(error.message || "註冊失敗，請再試一次");
+          return;
+        }
+  
+        // ⚠️ 這裡要分兩種狀況：
+        // 1) 若你的 Supabase 關閉了 Email 驗證 → signUp 會直接有 session.user
+        // 2) 若還有開 Email 驗證 → 需要使用者去收信點擊驗證，這裡就不能說「已自動登入」
+        if (data.session && data.session.user) {
+          // ✅ 有 session，代表已自動登入
+          alert("註冊成功，已自動幫你登入！");
+          await handlePostLoginRedirect(data.session.user);
+        } else {
+          // 沒有 session → 大多是因為開啟 Email 驗證
+          alert("註冊成功，請先到 Email 收信並完成驗證，再回到這裡登入。");
+        }
+      }
+  
+      document.getElementById("btn-login").addEventListener("click", handleLogin);
+      document.getElementById("btn-signup").addEventListener("click", handleSignUp);
+  
+      // ✅ 若已經有登入 session，進頁面時就直接幫你處理下一步（不再死抓 dashboard）
+      (async () => {
+        const { data } = await supabaseClient.auth.getSession();
+        if (data.session && data.session.user) {
+          await handlePostLoginRedirect(data.session.user);
+        }
+      })();
+    </script>
+  
 </body>
 </html>

@@ -564,14 +564,17 @@
   const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
 
   async function requireAuth() {
-    const { data } = await supabaseClient.auth.getSession();
-    if (!data.session || !data.session.user) {
-      // 沒登入 → 回登入頁
-      window.location.href = "login.html";
-      return null;
-    }
-    return data.session.user;
+  const { data } = await supabaseClient.auth.getSession();
+  if (!data.session || !data.session.user) {
+    // 取得目前頁面的檔名，例如 dashboard.html
+    const path = window.location.pathname;
+    const fileName = path.substring(path.lastIndexOf("/") + 1) || "dashboard.html";
+    const redirect = encodeURIComponent(fileName);
+    window.location.href = `login.html?redirect=${redirect}`;
+    return null;
   }
+  return data.session.user;
+}
 
   // 頁面初始化時先檢查
   (async () => {

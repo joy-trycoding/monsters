@@ -642,13 +642,17 @@
 
     // 登入檢查
     async function requireAuth() {
-      const { data } = await supabaseClient.auth.getSession();
-      if (!data.session || !data.session.user) {
-        window.location.href = "login.html";
-        return null;
-      }
-      return data.session.user;
-    }
+  const { data } = await supabaseClient.auth.getSession();
+  if (!data.session || !data.session.user) {
+    // 取得目前頁面的檔名，例如 dashboard.html
+    const path = window.location.pathname;
+    const fileName = path.substring(path.lastIndexOf("/") + 1) || "dashboard.html";
+    const redirect = encodeURIComponent(fileName);
+    window.location.href = `login.html?redirect=${redirect}`;
+    return null;
+  }
+  return data.session.user;
+}
 
     // 初始化
     document.addEventListener("DOMContentLoaded", async () => {
